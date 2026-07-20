@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+    .header {
+      background: linear-gradient(135deg, #1B4F72 0%, #2980b9 50%, #E67E22 100%);
+      color: white; padding: 28px 20px 20px; text-align: center;
+      border-radius: 0 0 24px 24px; box-shadow: 0 4px 20px rgba(27,79,114,0.3);
+    }
+    .header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+    .header .project-name { font-size: 13px; opacity: 0.85; }
+    .header .header-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.9; }
+
+    .banner-header { width: 100%; overflow: hidden; }
+    .banner-header img { width: 100%; height: auto; max-height: 300px; object-fit: cover; display: block; }
+
+    .container { max-width: 640px; margin: -12px auto 20px; padding: 0 16px; position: relative; z-index: 1; }
+
+    .card {
+      background: white; border-radius: 14px; padding: 20px; margin-bottom: 14px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: box-shadow 0.2s;
+    }
+    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+    .card-title {
+      display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700;
+      color: #1B4F72; margin-bottom: 14px; padding-bottom: 10px;
+      border-bottom: 2px solid #f0f2f5;
+    }
+    .card-title i { color: #E67E22; font-size: 16px; }
+
+    label { display: block; font-weight: 600; color: #34495e; margin-bottom: 5px; font-size: 12px; }
+    label .req { color: #E74C3C; }
+    input[type="text"], input[type="date"], input[type="number"], select, textarea {
+      width: 100%; padding: 10px 12px; border: 1.5px solid #dce1e6; border-radius: 8px;
+      font-size: 14px; margin-bottom: 12px; transition: all 0.2s; background: #fafbfc;
+    }
+    input:focus, select:focus, textarea:focus { border-color: #2980b9; outline: none; background: white; box-shadow: 0 0 0 3px rgba(41,128,185,0.1); }
+    textarea { resize: vertical; min-height: 60px; }
+
+    .section-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .section-pill {
+      padding: 8px 18px; border-radius: 20px; border: 2px solid #dce1e6; background: #fafbfc;
+      font-size: 13px; font-weight: 600; color: #7f8c8d; cursor: pointer;
+      transition: all 0.2s; user-select: none;
+    }
+    .section-pill:hover { border-color: #2980b9; color: #2980b9; background: #ebf5fb; }
+    .section-pill.active {
+      border-color: #E67E22; background: linear-gradient(135deg, #E67E22, #f39c12);
+      color: white; box-shadow: 0 2px 8px rgba(230,126,34,0.3);
+    }
+
+    .kegiatan-row {
+      display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start;
+      animation: slideIn 0.2s ease;
+    }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    .kegiatan-row input { margin-bottom: 0; }
+    .kegiatan-row .nama-input { flex: 2; }
+    .kegiatan-row .progress-input { flex: 1; min-width: 70px; }
+    .kegiatan-row .ket-input { flex: 1.5; }
+    .kegiatan-row .btn-remove {
+      background: #FADBD8; color: #E74C3C; border: none; border-radius: 8px;
+      width: 34px; height: 34px; cursor: pointer; font-size: 14px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .kegiatan-row .btn-remove:hover { background: #E74C3C; color: white; }
+
+    .btn-add-kegiatan {
+      display: flex; align-items: center; gap: 6px; background: #ebf5fb; color: #2980b9;
+      border: 2px dashed #2980b9; border-radius: 10px; padding: 10px 16px; cursor: pointer;
+      font-size: 13px; font-weight: 600; width: 100%; justify-content: center;
+      transition: all 0.2s; margin-top: 8px;
+    }
+    .btn-add-kegiatan:hover { background: #2980b9; color: white; border-style: solid; }
+
+    .weather-row { display: flex; gap: 8px; }
+    .weather-row > div { flex: 1; }
+
+    .file-upload-area {
+      border: 2px dashed #dce1e6; border-radius: 12px; padding: 24px; text-align: center;
+      cursor: pointer; transition: all 0.2s; background: #fafbfc;
+    }
+    .file-upload-area:hover { border-color: #2980b9; background: #ebf5fb; }
+    .file-upload-area i { font-size: 28px; color: #bdc3c7; margin-bottom: 8px; }
+    .file-upload-area p { font-size: 13px; color: #7f8c8d; }
+    .file-upload-area input { display: none; }
+    .foto-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .foto-preview .thumb {
+      width: 56px; height: 56px; object-fit: cover; border-radius: 8px;
+      border: 2px solid #ecf0f1; transition: transform 0.2s;
+    }
+    .foto-preview .thumb:hover { transform: scale(1.1); }
+    .file-count { font-size: 12px; color: #7f8c8d; margin-top: 6px; }
+
+    .btn-submit {
+      width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 16px;
+      font-weight: 700; cursor: pointer; color: white;
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      box-shadow: 0 4px 12px rgba(39,174,96,0.3); transition: all 0.3s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(39,174,96,0.4); }
+    .btn-submit:disabled { background: #95a5a6; box-shadow: none; cursor: not-allowed; transform: none; }
+
+    .loading-overlay { display: none; text-align: center; padding: 40px; }
+    .spinner {
+      width: 36px; height: 36px; border: 4px solid #ecf0f1; border-top: 4px solid #E67E22;
+      border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .alert { padding: 12px 16px; border-radius: 10px; margin-bottom: 14px; font-size: 13px; font-weight: 500; animation: slideIn 0.3s ease; }
+    .alert-success { background: #d5f5e3; color: #1e8449; border: 1px solid #82e0aa; }
+    .alert-error { background: #fadbd8; color: #922b21; border: 1px solid #f1948a; }
+
+    .footer-links { text-align: center; margin-top: 16px; padding: 12px; }
+    .footer-links a {
+      color: #7f8c8d; text-decoration: none; font-size: 12px; font-weight: 500;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: #1B4F72; }
+
+    .submit-area { position: relative; }
+    .submit-loading { display: none; text-align: center; padding: 16px; }
+    .submit-loading .spinner { width: 24px; height: 24px; border-width: 3px; }
+    .submit-loading p { font-size: 13px; color: #7f8c8d; }
+  </style>
+</head>
+<body>
+  <div id="bannerHeader" class="banner-header" style="display:none;">
+    <img id="bannerImage" src="" alt="Banner">
+  </div>
+  <div class="header">
+    <div class="header-icon"><i class="fas fa-hard-hat"></i></div>
+    <h1 id="headerTitleDisplay">Daily Report</h1>
+    <p class="project-name" id="projectNameDisplay">Memuat data...</p>
+  </div>
+
+  <div class="container">
+    <div id="loadingDiv" class="loading-overlay" style="display:block;">
+      <div class="spinner"></div>
+      <p style="color:#7f8c8d;font-size:13px;">Memuat form...</p>
+    </div>
+
+    <div id="formDiv" style="display:none;">
+      <div id="alertDiv"></div>
+
+      <!-- SECTION -->
+      <div class="card">
+        <div class="card-title"><i class="fas fa-map-marker-alt"></i> Pilih Section / Area</div>
+        <div class="section-picker" id="sectionPicker"></div>
+        <input type="hidden" id="selectedSection">
+      </div>
+
+      <!-- INFO HARI INI -->
+      <div class="card">
+        <div class="card-title"><i class="fas fa-calendar-day"></i> Informasi Hari Ini</div>
+
+        <div class="weather-row">
+          <div>
+            <label>Tanggal <span class="req">*</span></label>
+            <input type="date" id="tanggal">
+          </div>
+          <div>
+            <label>Cuaca</label>
+            <select id="cuaca">
+              <option value="">-- Pilih --</option>
+              <option value="Cerah">Cerah</option>
+              <option value="Berawan">Berawan</option>
+              <option value="Mendung">Mendung</option>
+              <option value="Hujan Ringan">Hujan Ringan</option>
+              <option value="Hujan Lebat">Hujan Lebat</option>
+            </select>
+          </div>
+        </div>
+
+        <label>Nama Pelapor</label>
+        <input type="text" id="namaPelapor" placeholder="Nama Anda">
+
+        <div class="weather-row">
+          <div>
+            <label>Tenaga Kerja</label>
+            <input type="number" id="tenagaKerja" min="0" placeholder="Jumlah orang">
+          </div>
+          <div>
+            <label>Alat Berat</label>
+            <input type="text" id="alatBerat" placeholder="Ex: Excavator, Crane">
+          </div>
+        </div>
+      </div>
+
+      <!-- PROGRESS PEKERJAAN -->
+      <div class="card">
+        <div class="card-title"><i class="fas fa-tasks"></i> Progress Pekerjaan <span class="req">*</span></div>
+
+        <div style="display:flex;gap:6px;margin-bottom:8px;font-size:11px;color:#7f8c8d;font-weight:600;">
+          <div style="flex:2;">Nama Kegiatan</div>
+          <div style="flex:1;text-align:center;">Progress %</div>
+          <div style="flex:1.5;">Keterangan</div>
+          <div style="width:34px;"></div>
+        </div>
+
+        <div id="kegiatanList"></div>
+
+        <button class="btn-add-kegiatan" onclick="addKegiatan()">
+          <i class="fas fa-plus-circle"></i> Tambah Kegiatan
+        </button>
+      </div>
+
+      <!-- KENDALA -->
+      <div class="card">
+        <div class="card-title"><i class="fas fa-exclamation-triangle"></i> Kendala / Hambatan <span style="font-weight:400;color:#7f8c8d;font-size:12px;">(opsional)</span></div>
+
+        <div id="kendalaList"></div>
+
+        <button class="btn-add-kegiatan" onclick="addKendala()">
+          <i class="fas fa-plus-circle"></i> Tambah Kendala
+        </button>
+      </div>
+
+      <!-- FOTO -->
+      <div class="card">
+        <div class="card-title"><i class="fas fa-camera"></i> Foto Dokumentasi <span style="font-weight:400;color:#7f8c8d;font-size:12px;">(opsional)</span></div>
+        <div class="file-upload-area" onclick="document.getElementById('fotoInput').click()">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>Klik untuk upload foto</p>
+          <p style="font-size:11px;margin-top:4px;">JPG, PNG, WEBP (maks. 10 file)</p>
+          <input type="file" id="fotoInput" multiple accept="image/*" onchange="previewFotos()">
+        </div>
+        <div class="file-count" id="fileCount"></div>
+        <div class="foto-preview" id="fotoPreview"></div>
+      </div>
+
+      <!-- SUBMIT -->
+      <div class="submit-area">
+        <button class="btn-submit" id="btnSubmit" onclick="submitForm()">
+          <i class="fas fa-paper-plane"></i> Submit Laporan
+        </button>
+        <div class="submit-loading" id="submitLoading">
+          <div class="spinner"></div>
+          <p>Mengirim laporan...</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    var settingsData = null;
+    var selectedSection = '';
+
+    function init() {
+      google.script.run
+        .withSuccessHandler(function(data) {
+          settingsData = data;
+          document.getElementById('headerTitleDisplay').textContent = data.header_title || 'Daily Report';
+          document.getElementById('projectNameDisplay').textContent = data.project_name || 'Daily Report';
+
+          // Show banner if URL exists
+          if (data.header_banner_url) {
+            var bannerDiv = document.getElementById('bannerHeader');
+            var bannerImg = document.getElementById('bannerImage');
+            bannerImg.src = data.header_banner_url;
+            bannerImg.onerror = function() { bannerDiv.style.display = 'none'; };
+            bannerDiv.style.display = 'block';
+          }
+
+          var picker = document.getElementById('sectionPicker');
+          picker.innerHTML = '';
+          for (var i = 0; i < data.sections.length; i++) {
+            var pill = document.createElement('div');
+            pill.className = 'section-pill';
+            pill.textContent = data.sections[i];
+            pill.setAttribute('data-section', data.sections[i]);
+            pill.onclick = function() {
+              document.querySelectorAll('.section-pill').forEach(function(p) { p.classList.remove('active'); });
+              this.classList.add('active');
+              selectedSection = this.getAttribute('data-section');
+              document.getElementById('selectedSection').value = selectedSection;
+            };
+            picker.appendChild(pill);
+          }
+
+          addKegiatan();
+
+          var today = new Date();
+          var yyyy = today.getFullYear();
+          var mm = String(today.getMonth() + 1).padStart(2, '0');
+          var dd = String(today.getDate()).padStart(2, '0');
+          document.getElementById('tanggal').value = yyyy + '-' + mm + '-' + dd;
+
+          document.getElementById('loadingDiv').style.display = 'none';
+          document.getElementById('formDiv').style.display = 'block';
+        })
+        .withFailureHandler(function(err) {
+          document.getElementById('loadingDiv').innerHTML = '<div class="alert alert-error">Gagal memuat: ' + err.message + '</div>';
+        })
+        .getSettings();
+    }
+
+    function addKegiatan() {
+      var list = document.getElementById('kegiatanList');
+      var count = list.querySelectorAll('.kegiatan-row').length + 1;
+      var div = document.createElement('div');
+      div.className = 'kegiatan-row';
+      div.innerHTML =
+        '<input type="text" class="nama-input" placeholder="Nama pekerjaan">' +
+        '<input type="number" class="progress-input" placeholder="%" min="0" max="100">' +
+        '<input type="text" class="ket-input" placeholder="Catatan">' +
+        '<button class="btn-remove" onclick="removeKegiatan(this)" title="Hapus"><i class="fas fa-times"></i></button>';
+      list.appendChild(div);
+      div.querySelector('.nama-input').focus();
+    }
+
+    function removeKegiatan(btn) {
+      var list = document.getElementById('kegiatanList');
+      if (list.querySelectorAll('.kegiatan-row').length > 1) {
+        btn.parentElement.style.animation = 'slideIn 0.2s ease reverse';
+        setTimeout(function() { btn.parentElement.remove(); }, 180);
+      }
+    }
+
+    function getKegiatanList() {
+      var rows = document.querySelectorAll('#kegiatanList .kegiatan-row');
+      var items = [];
+      for (var i = 0; i < rows.length; i++) {
+        var nama = rows[i].querySelector('.nama-input').value.trim();
+        var progress = rows[i].querySelector('.progress-input').value;
+        var keterangan = rows[i].querySelector('.ket-input').value.trim();
+        if (nama || progress !== '') {
+          items.push({nama: nama, progress: progress, keterangan: keterangan});
+        }
+      }
+      return items;
+    }
+
+    // ========== KENDALA LIST ==========
+    function addKendala() {
+      var list = document.getElementById('kendalaList');
+      var count = list.querySelectorAll('.kegiatan-row').length + 1;
+      var div = document.createElement('div');
+      div.className = 'kegiatan-row';
+      div.innerHTML =
+        '<input type="text" class="kendala-input" placeholder="Kendala ' + count + '" style="flex:1;">' +
+        '<button class="btn-remove" onclick="removeKendala(this)" title="Hapus"><i class="fas fa-times"></i></button>';
+      list.appendChild(div);
+      div.querySelector('.kendala-input').focus();
+    }
+
+    function removeKendala(btn) {
+      var list = document.getElementById('kendalaList');
+      if (list.querySelectorAll('.kegiatan-row').length > 1) {
+        btn.parentElement.style.animation = 'slideIn 0.2s ease reverse';
+        setTimeout(function() { btn.parentElement.remove(); }, 180);
+      }
+    }
+
+    function getKendalaList() {
+      var inputs = document.querySelectorAll('#kendalaList .kendala-input');
+      var items = [];
+      for (var i = 0; i < inputs.length; i++) {
+        var val = inputs[i].value.trim();
+        if (val) items.push(val);
+      }
+      return items;
+    }
+
+    function previewFotos() {
+      var input = document.getElementById('fotoInput');
+      var preview = document.getElementById('fotoPreview');
+      var count = document.getElementById('fileCount');
+      preview.innerHTML = '';
+
+      if (input.files.length > 0) {
+        count.textContent = input.files.length + ' file dipilih';
+        for (var i = 0; i < input.files.length; i++) {
+          var reader = new FileReader();
+          reader.onload = (function() {
+            return function(e) {
+              var img = document.createElement('img');
+              img.className = 'thumb';
+              img.src = e.target.result;
+              preview.appendChild(img);
+            };
+          })();
+          reader.readAsDataURL(input.files[i]);
+        }
+      } else {
+        count.textContent = '';
+      }
+    }
+
+    function submitForm() {
+      var section = selectedSection;
+      var tanggal = document.getElementById('tanggal').value;
+      var kegiatan = getKegiatanList();
+
+      if (!section) return showAlert('Pilih Section terlebih dulu', 'error');
+      if (!tanggal) return showAlert('Isi Tanggal Laporan', 'error');
+      if (kegiatan.length === 0) return showAlert('Minimal 1 Kegiatan wajib diisi', 'error');
+
+      for (var k = 0; k < kegiatan.length; k++) {
+        if (!kegiatan[k].nama) return showAlert('Nama Kegiatan #' + (k + 1) + ' wajib diisi', 'error');
+        var p = parseFloat(kegiatan[k].progress);
+        if (isNaN(p) || p < 0 || p > 100) return showAlert('Progress "' + kegiatan[k].nama + '" harus antara 0-100', 'error');
+      }
+
+      var formData = {
+        section: section,
+        tanggal: tanggal,
+        nama_pelapor: document.getElementById('namaPelapor').value,
+        cuaca: document.getElementById('cuaca').value,
+        tenaga_kerja: document.getElementById('tenagaKerja').value,
+        alat_berat: document.getElementById('alatBerat').value,
+        kendala: getKendalaList(),
+        kegiatan: kegiatan,
+        fotos: []
+      };
+
+      var fotoInput = document.getElementById('fotoInput');
+      if (fotoInput.files.length > 0) {
+        setSubmitLoading(true);
+        var filesProcessed = 0;
+        var totalFiles = fotoInput.files.length;
+
+        for (var i = 0; i < fotoInput.files.length; i++) {
+          (function(file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+              var base64 = e.target.result.split(',')[1];
+              formData.fotos.push({name: file.name, mimeType: file.type, data: base64});
+              filesProcessed++;
+              if (filesProcessed === totalFiles) doSubmit(formData);
+            };
+            reader.readAsDataURL(file);
+          })(fotoInput.files[i]);
+        }
+      } else {
+        doSubmit(formData);
+      }
+    }
+
+    function doSubmit(formData) {
+      setSubmitLoading(true);
+      google.script.run
+        .withSuccessHandler(function(result) {
+          setSubmitLoading(false);
+          if (result.status === 'ok') {
+            showAlert(result.message + (result.report_id ? ' (ID: ' + result.report_id + ')' : ''), 'success');
+            resetForm();
+          } else {
+            showAlert(result.message, 'error');
+          }
+        })
+        .withFailureHandler(function(err) {
+          setSubmitLoading(false);
+          showAlert('Gagal submit: ' + err.message, 'error');
+        })
+        .submitReport(formData);
+    }
+
+    function setSubmitLoading(show) {
+      document.getElementById('btnSubmit').style.display = show ? 'none' : 'flex';
+      document.getElementById('submitLoading').style.display = show ? 'block' : 'none';
+    }
+
+    function resetForm() {
+      document.getElementById('cuaca').value = '';
+      document.getElementById('tenagaKerja').value = '';
+      document.getElementById('alatBerat').value = '';
+      selectedSection = '';
+      document.getElementById('selectedSection').value = '';
+      document.querySelectorAll('.section-pill').forEach(function(p) { p.classList.remove('active'); });
+
+      document.getElementById('kegiatanList').innerHTML = '';
+      addKegiatan();
+
+      document.getElementById('kendalaList').innerHTML = '';
+      addKendala();
+
+      document.getElementById('fotoInput').value = '';
+      document.getElementById('fotoPreview').innerHTML = '';
+      document.getElementById('fileCount').textContent = '';
+    }
+
+    function showAlert(msg, type) {
+      var div = document.getElementById('alertDiv');
+      div.innerHTML = '<div class="alert alert-' + type + '"><i class="fas fa-' + (type === 'success' ? 'check-circle' : 'exclamation-circle') + '"></i> ' + msg + '</div>';
+      div.scrollIntoView({behavior: 'smooth'});
+      setTimeout(function() { div.innerHTML = ''; }, 6000);
+    }
+
+    init();
+  </script>
+</body>
+</html>

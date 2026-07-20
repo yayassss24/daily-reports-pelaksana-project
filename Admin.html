@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+    .header {
+      background: linear-gradient(135deg, #1B4F72 0%, #2980b9 50%, #E67E22 100%);
+      color: white; padding: 24px 20px 18px; text-align: center;
+      border-radius: 0 0 24px 24px; box-shadow: 0 4px 20px rgba(27,79,114,0.3);
+      position: relative;
+    }
+    .header h1 { font-size: 20px; font-weight: 700; }
+    .header .subtitle { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+
+    .container { max-width: 900px; margin: -10px auto 20px; padding: 0 16px; }
+
+    .card {
+      background: white; border-radius: 14px; padding: 20px; margin-bottom: 14px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .card-title {
+      display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700;
+      color: #1B4F72; margin-bottom: 14px; padding-bottom: 10px;
+      border-bottom: 2px solid #f0f2f5;
+    }
+    .card-title i { color: #E67E22; font-size: 16px; }
+
+    label { display: block; font-weight: 600; color: #34495e; margin-bottom: 5px; font-size: 12px; }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%; padding: 9px 12px; border: 1.5px solid #dce1e6; border-radius: 8px;
+      font-size: 13px; margin-bottom: 12px; transition: all 0.2s; background: #fafbfc;
+    }
+    input:focus, select:focus, textarea:focus { border-color: #2980b9; outline: none; background: white; box-shadow: 0 0 0 3px rgba(41,128,185,0.1); }
+
+    /* LOGIN */
+    .login-card { max-width: 420px; margin: 40px auto; }
+    .login-card .btn-login {
+      width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 15px;
+      font-weight: 700; cursor: pointer; color: white;
+      background: linear-gradient(135deg, #1B4F72, #2980b9);
+      box-shadow: 0 4px 12px rgba(27,79,114,0.3); transition: all 0.3s;
+    }
+    .login-card .btn-login:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(27,79,114,0.4); }
+
+    /* STATS BAR */
+    .stats-bar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .stat-card {
+      flex: 1; min-width: 120px; background: white; border-radius: 12px; padding: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center; position: relative; overflow: hidden;
+    }
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .stat-card.total::before { background: linear-gradient(90deg, #1B4F72, #2980b9); }
+    .stat-card.pending::before { background: linear-gradient(90deg, #E67E22, #f39c12); }
+    .stat-card.approved::before { background: linear-gradient(90deg, #1e8449, #27ae60); }
+    .stat-card.rejected::before { background: linear-gradient(90deg, #922b21, #e74c3c); }
+    .stat-card .stat-icon { font-size: 22px; margin-bottom: 6px; }
+    .stat-card.total .stat-icon { color: #2980b9; }
+    .stat-card.pending .stat-icon { color: #E67E22; }
+    .stat-card.approved .stat-icon { color: #27ae60; }
+    .stat-card.rejected .stat-icon { color: #e74c3c; }
+    .stat-card .stat-num { font-size: 28px; font-weight: 800; color: #2c3e50; }
+    .stat-card .stat-label { font-size: 11px; color: #7f8c8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* FILTER BAR */
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 12px; }
+    .filter-bar > div { flex: 1; min-width: 120px; }
+    .filter-bar select, .filter-bar input { margin-bottom: 0; font-size: 12px; padding: 8px 10px; }
+    .btn-filter {
+      padding: 8px 18px; border: none; border-radius: 8px; font-size: 12px; font-weight: 600;
+      cursor: pointer; color: white; background: #2980b9; transition: all 0.2s;
+      white-space: nowrap; height: 36px;
+    }
+    .btn-filter:hover { background: #1a6da0; }
+    .btn-clear {
+      padding: 8px 14px; border: 1.5px solid #dce1e6; border-radius: 8px; font-size: 12px;
+      font-weight: 600; cursor: pointer; color: #7f8c8d; background: white; transition: all 0.2s;
+      white-space: nowrap; height: 36px;
+    }
+    .btn-clear:hover { border-color: #e74c3c; color: #e74c3c; }
+
+    /* TABLE */
+    .table-wrapper { overflow-x: auto; }
+    .report-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .report-table th {
+      background: #f8f9fa; color: #7f8c8d; padding: 10px 8px; text-align: left;
+      font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px;
+      border-bottom: 2px solid #ecf0f1; white-space: nowrap;
+    }
+    .report-table td { padding: 10px 8px; border-bottom: 1px solid #f0f2f5; vertical-align: middle; }
+    .report-table tr:hover { background: #f8f4fc; }
+
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px;
+      font-weight: 700; white-space: nowrap;
+    }
+    .badge-pending { background: #fef9e7; color: #b7950b; border: 1px solid #f9e79f; }
+    .badge-approved { background: #d5f5e3; color: #1e8449; border: 1px solid #82e0aa; }
+    .badge-rejected { background: #fadbd8; color: #922b21; border: 1px solid #f1948a; }
+
+    .progress-mini { display: flex; align-items: center; gap: 6px; }
+    .progress-mini-bar {
+      width: 50px; height: 6px; background: #ecf0f1; border-radius: 3px; overflow: hidden;
+    }
+    .progress-mini-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+    .progress-mini-text { font-size: 11px; color: #7f8c8d; font-weight: 600; }
+
+    .btn-sm {
+      padding: 5px 10px; border-radius: 6px; border: none; cursor: pointer;
+      font-size: 11px; font-weight: 600; transition: all 0.2s; white-space: nowrap;
+    }
+    .btn-view { background: #ebf5fb; color: #2980b9; }
+    .btn-view:hover { background: #2980b9; color: white; }
+    .btn-approve { background: #d5f5e3; color: #1e8449; }
+    .btn-approve:hover { background: #27ae60; color: white; }
+    .btn-reject { background: #fadbd8; color: #922b21; }
+    .btn-reject:hover { background: #e74c3c; color: white; }
+
+    .empty { text-align: center; padding: 40px; color: #7f8c8d; }
+    .empty i { font-size: 36px; margin-bottom: 10px; color: #dce1e6; }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;
+      padding: 20px; backdrop-filter: blur(4px);
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: white; border-radius: 16px; max-width: 600px; width: 100%;
+      max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: modalIn 0.3s ease;
+    }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 18px 20px; border-bottom: 1px solid #f0f2f5;
+    }
+    .modal-header h3 { font-size: 16px; color: #1B4F72; }
+    .modal-close {
+      background: #f0f2f5; border: none; border-radius: 8px; width: 32px; height: 32px;
+      cursor: pointer; font-size: 14px; color: #7f8c8d; transition: all 0.2s;
+    }
+    .modal-close:hover { background: #e74c3c; color: white; }
+    .modal-body { padding: 20px; }
+
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .detail-item { }
+    .detail-item .label { font-size: 11px; color: #7f8c8d; font-weight: 600; text-transform: uppercase; }
+    .detail-item .value { font-size: 14px; color: #2c3e50; font-weight: 600; }
+
+    .workitem-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 16px; }
+    .workitem-table th { background: #f8f9fa; padding: 8px 10px; text-align: left; font-size: 11px; color: #7f8c8d; font-weight: 700; }
+    .workitem-table td { padding: 8px 10px; border-bottom: 1px solid #f0f2f5; }
+    .progress-bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .progress-bar-bg { flex: 1; height: 8px; background: #ecf0f1; border-radius: 4px; overflow: hidden; }
+    .progress-bar-fg { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+    .progress-bar-fg.low { background: linear-gradient(90deg, #e74c3c, #e67e22); }
+    .progress-bar-fg.mid { background: linear-gradient(90deg, #e67e22, #f1c40f); }
+    .progress-bar-fg.high { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+    .progress-bar-fg.done { background: linear-gradient(90deg, #1e8449, #27ae60); }
+    .progress-pct { font-size: 12px; font-weight: 700; color: #2c3e50; min-width: 35px; text-align: right; }
+
+    .modal-actions { display: flex; gap: 10px; padding: 16px 20px; border-top: 1px solid #f0f2f5; }
+    .btn-modal-approve {
+      flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 14px;
+      font-weight: 700; cursor: pointer; color: white;
+      background: linear-gradient(135deg, #1e8449, #27ae60);
+      transition: all 0.2s;
+    }
+    .btn-modal-approve:hover { box-shadow: 0 4px 12px rgba(39,174,96,0.3); }
+    .btn-modal-reject {
+      flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 14px;
+      font-weight: 700; cursor: pointer; color: white;
+      background: linear-gradient(135deg, #922b21, #e74c3c);
+      transition: all 0.2s;
+    }
+    .btn-modal-reject:hover { box-shadow: 0 4px 12px rgba(231,76,60,0.3); }
+
+    .reject-reason { display: none; margin-top: 10px; }
+    .reject-reason textarea { border-color: #e74c3c; }
+    .reject-reason.active { display: block; animation: slideIn 0.2s ease; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 0; margin-bottom: 14px; border-bottom: 2px solid #f0f2f5; }
+    .tab {
+      padding: 10px 20px; font-size: 13px; font-weight: 600; color: #7f8c8d;
+      cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+    .tab:hover { color: #2980b9; }
+    .tab.active { color: #1B4F72; border-bottom-color: #E67E22; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: slideIn 0.3s ease; }
+
+    .btn-primary {
+      padding: 10px 20px; border: none; border-radius: 8px; font-size: 13px;
+      font-weight: 600; cursor: pointer; color: white;
+      background: linear-gradient(135deg, #1B4F72, #2980b9); transition: all 0.2s;
+    }
+    .btn-primary:hover { box-shadow: 0 4px 12px rgba(27,79,114,0.3); }
+
+    .btn-danger {
+      padding: 5px 10px; border: none; border-radius: 6px; font-size: 11px;
+      font-weight: 600; cursor: pointer; color: white;
+      background: #e74c3c; transition: all 0.2s;
+    }
+    .btn-danger:hover { background: #c0392b; }
+
+    .settings-row { display: flex; gap: 12px; }
+    .settings-row > div { flex: 1; }
+
+    .section-list-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 14px; border-bottom: 1px solid #f0f2f5; font-size: 13px;
+    }
+    .section-list-item:last-child { border-bottom: none; }
+
+    .alert { padding: 12px 16px; border-radius: 10px; margin-bottom: 14px; font-size: 13px; font-weight: 500; animation: slideIn 0.3s ease; }
+    .alert-success { background: #d5f5e3; color: #1e8449; border: 1px solid #82e0aa; }
+    .alert-error { background: #fadbd8; color: #922b21; border: 1px solid #f1948a; }
+
+    .spinner { width: 30px; height: 30px; border: 3px solid #ecf0f1; border-top: 3px solid #E67E22; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .footer-links { text-align: center; margin-top: 16px; padding: 12px; }
+    .footer-links a { color: #7f8c8d; text-decoration: none; font-size: 12px; }
+    .footer-links a:hover { color: #1B4F72; }
+
+    /* EMAIL CHIPS */
+    .email-chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; margin-bottom: 4px; }
+    .email-chip {
+      display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px;
+      background: #eaf2f8; color: #1B4F72; border-radius: 16px; font-size: 12px; font-weight: 600;
+      border: 1px solid #aed6f1; animation: slideIn 0.2s ease;
+    }
+    .email-chip .chip-remove {
+      width: 18px; height: 18px; border-radius: 50%; border: none; cursor: pointer;
+      background: #d6eaf8; color: #1B4F72; font-size: 10px; display: flex;
+      align-items: center; justify-content: center; transition: all 0.2s; padding: 0;
+    }
+    .email-chip .chip-remove:hover { background: #e74c3c; color: white; }
+    .email-chips-empty { font-size: 11px; color: #bdc3c7; font-style: italic; }
+
+    /* BANNER */
+    .banner-preview { width: 100%; border-radius: 10px; overflow: hidden; border: 2px solid #ecf0f1; }
+    .banner-preview img { width: 100%; max-height: 200px; object-fit: cover; display: block; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1><i class="fas fa-tachometer-alt"></i> Dashboard Admin</h1>
+    <p class="subtitle" id="projectNameDisplay">Daily Report Management</p>
+  </div>
+
+  <div class="container">
+    <div id="alertDiv"></div>
+
+    <!-- LOGIN -->
+    <div class="card login-card" id="loginCard">
+      <div class="card-title"><i class="fas fa-user-shield"></i> Login Admin</div>
+      <label>Email Admin</label>
+      <input type="text" id="adminEmail" placeholder="Masukkan email yang terdaftar sebagai admin">
+      <button class="btn-login" id="btnLogin" onclick="login()">
+        <i class="fas fa-sign-in-alt"></i> Masuk
+      </button>
+    </div>
+
+    <!-- LOADING -->
+    <div id="loadingDiv" style="display:none;">
+      <div class="card" style="text-align:center;padding:40px;">
+        <div class="spinner"></div>
+        <p style="color:#7f8c8d;font-size:13px;">Memuat dashboard...</p>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboardDiv" style="display:none;">
+
+      <!-- STATS -->
+      <div class="stats-bar" id="statsBar"></div>
+
+      <!-- TABS -->
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('reports')"><i class="fas fa-list"></i> Laporan</div>
+        <div class="tab" onclick="switchTab('sections')"><i class="fas fa-th-list"></i> Sections</div>
+        <div class="tab" onclick="switchTab('settings')"><i class="fas fa-cog"></i> Pengaturan</div>
+        <div class="tab" onclick="switchTab('debug')"><i class="fas fa-bug"></i> Debug</div>
+      </div>
+
+      <!-- TAB: LAPORAN -->
+      <div class="tab-content active" id="tab-reports">
+        <div class="card">
+          <div class="filter-bar">
+            <div>
+              <select id="filterSection"><option value="">Semua Section</option></select>
+            </div>
+            <div>
+              <input type="date" id="filterTanggal">
+            </div>
+            <div>
+              <select id="filterStatus">
+                <option value="">Semua Status</option>
+                <option value="Menunggu Approval">Menunggu Approval</option>
+                <option value="Approved">Approved</option>
+                <option value="Ditolak">Ditolak</option>
+              </select>
+            </div>
+            <button class="btn-filter" onclick="loadReports()"><i class="fas fa-search"></i> Filter</button>
+            <button class="btn-clear" onclick="clearFilter()">Reset</button>
+          </div>
+          <div class="table-wrapper">
+            <div id="reportsTable"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: SECTIONS -->
+      <div class="tab-content" id="tab-sections">
+        <div class="card">
+          <div class="card-title"><i class="fas fa-th-list"></i> Kelola Sections</div>
+          <div id="sectionsList"></div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <input type="text" id="newSectionName" placeholder="Nama section baru" style="margin-bottom:0;flex:1;">
+            <button class="btn-primary" onclick="addNewSection()"><i class="fas fa-plus"></i> Tambah</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: PENGATURAN -->
+      <div class="tab-content" id="tab-settings">
+        <div class="card">
+          <div class="card-title"><i class="fas fa-cog"></i> Pengaturan Proyek</div>
+          <label>Header Title (Judul Form Input)</label>
+          <input type="text" id="settHeaderTitle" placeholder="Ex: Laporan Harian Lapangan">
+          <label>Nama Proyek</label>
+          <input type="text" id="settProjectName" placeholder="Nama proyek">
+        </div>
+
+        <div class="card">
+          <div class="card-title"><i class="fas fa-envelope"></i> Email Admin (PC Approver)</label></div>
+          <p style="font-size:11px;color:#7f8c8d;margin-bottom:10px;">Admin yang bisa login dan approve laporan</p>
+          <div class="email-chips" id="adminEmailChips"></div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <input type="email" id="adminEmailInput" placeholder="email@perusahaan.com" style="margin-bottom:0;flex:1;">
+            <button class="btn-primary" onclick="addEmail('admin')" style="white-space:nowrap;"><i class="fas fa-plus"></i> Tambah</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><i class="fas fa-users"></i> Email Stakeholder (Penerima Laporan)</div>
+          <p style="font-size:11px;color:#7f8c8d;margin-bottom:10px;">Penerima email otomatis saat laporan di-approve</p>
+          <div class="email-chips" id="stakeholderEmailChips"></div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <input type="email" id="stakeholderEmailInput" placeholder="pm@perusahaan.com" style="margin-bottom:0;flex:1;">
+            <button class="btn-primary" onclick="addEmail('stakeholder')" style="white-space:nowrap;"><i class="fas fa-plus"></i> Tambah</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><i class="fas fa-image"></i> Banner Header Form</div>
+          <p style="font-size:11px;color:#7f8c8d;margin-bottom:10px;">Gambar banner yang muncul di atas form input (ukuran ideal: 1200x300px)</p>
+          <div id="bannerPreview" style="margin-bottom:10px;"></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <label for="bannerFileInput" class="btn-primary" style="cursor:pointer;white-space:nowrap;margin-bottom:0;">
+              <i class="fas fa-upload"></i> Pilih Gambar
+            </label>
+            <input type="file" id="bannerFileInput" accept="image/*" style="display:none;" onchange="previewBanner(this)">
+            <span id="bannerFileName" style="font-size:12px;color:#7f8c8d;"></span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <input type="text" id="settBannerUrl" placeholder="Atau paste URL gambar" style="margin-bottom:0;flex:1;">
+          </div>
+          <div style="margin-top:10px;">
+            <button class="btn-primary" onclick="uploadBanner()" id="btnUploadBanner"><i class="fas fa-upload"></i> Upload Banner</button>
+            <button class="btn-danger" onclick="removeBanner()" id="btnRemoveBanner" style="display:none;margin-left:8px;"><i class="fas fa-trash"></i> Hapus Banner</button>
+          </div>
+        </div>
+
+        <div class="card" style="text-align:center;">
+          <button class="btn-primary" onclick="saveSettings()" style="width:100%;"><i class="fas fa-save"></i> Simpan Semua Pengaturan</button>
+        </div>
+      </div>
+
+      <!-- TAB: DEBUG -->
+      <div class="tab-content" id="tab-debug">
+        <div class="card">
+          <div class="card-title"><i class="fas fa-bug"></i> Debug Info</div>
+          <p style="font-size:12px;color:#7f8c8d;margin-bottom:12px;">Klik tombol untuk melihat data mentah dari spreadsheet. Berguna untuk troubleshooting jika ada masalah.</p>
+          <button class="btn-primary" onclick="loadDebugInfo()" style="margin-bottom:14px;"><i class="fas fa-sync"></i> Load Debug Info</button>
+          <button class="btn-primary" onclick="runMigration()" style="margin-bottom:14px;margin-left:8px;background:#e67e22;"><i class="fas fa-wrench"></i> Fix Sheet (Tambah Kolom Kendala)</button>
+          <div id="debugOutput" style="display:none;">
+            <div id="debugSheets" class="card" style="background:#f8f9fa;box-shadow:none;"></div>
+            <div id="debugSettings" class="card" style="background:#f8f9fa;box-shadow:none;"></div>
+            <div id="debugReports" class="card" style="background:#f8f9fa;box-shadow:none;"></div>
+            <div id="debugWorkItems" class="card" style="background:#f8f9fa;box-shadow:none;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-links">
+      <a href="?page=form"><i class="fas fa-arrow-left"></i> Kembali ke Form Input</a>
+    </div>
+  </div>
+
+  <!-- MODAL DETAIL -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modalTitle">Detail Laporan</h3>
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-actions" id="modalActions"></div>
+    </div>
+  </div>
+
+  <script>
+    var currentAdminEmail = '';
+    var currentSettings = null;
+    var allReports = [];
+
+    // ========== LOGIN ==========
+    function login() {
+      var email = document.getElementById('adminEmail').value.trim();
+      if (!email) return showAlert('Masukkan email admin', 'error');
+
+      document.getElementById('btnLogin').disabled = true;
+      google.script.run
+        .withSuccessHandler(function(ok) {
+          document.getElementById('btnLogin').disabled = false;
+          if (ok) {
+            currentAdminEmail = email;
+            document.getElementById('loginCard').style.display = 'none';
+            document.getElementById('loadingDiv').style.display = 'block';
+            loadDashboard();
+          } else {
+            showAlert('Email "' + email + '" tidak terdaftar sebagai admin', 'error');
+          }
+        })
+        .withFailureHandler(function(err) {
+          document.getElementById('btnLogin').disabled = false;
+          showAlert('Error: ' + err.message, 'error');
+        })
+        .isAdmin(email);
+    }
+
+    // ========== LOAD DASHBOARD ==========
+    function loadDashboard() {
+      google.script.run
+        .withSuccessHandler(function(settings) {
+          currentSettings = settings;
+          document.getElementById('projectNameDisplay').textContent = settings.project_name || 'Daily Report';
+
+          // Populate filter section
+          var filterSel = document.getElementById('filterSection');
+          filterSel.innerHTML = '<option value="">Semua Section</option>';
+          for (var i = 0; i < settings.sections.length; i++) {
+            filterSel.innerHTML += '<option value="' + esc(settings.sections[i]) + '">' + esc(settings.sections[i]) + '</option>';
+          }
+
+          // Load stats + reports
+          loadStats();
+          loadReports();
+          loadSettingsForm();
+          loadSectionsList();
+
+          // Auto-refresh setiap 15 detik
+          setInterval(function() {
+            if (document.getElementById('tab-reports').classList.contains('active')) {
+              loadStats();
+              loadReports();
+            }
+          }, 15000);
+
+          document.getElementById('loadingDiv').style.display = 'none';
+          document.getElementById('dashboardDiv').style.display = 'block';
+        })
+        .withFailureHandler(function(err) {
+          document.getElementById('loadingDiv').innerHTML = '<div class="alert alert-error">' + err.message + '</div>';
+        })
+        .getSettings();
+    }
+
+    // ========== LOAD STATS ==========
+    function loadStats() {
+      google.script.run
+        .withSuccessHandler(function(stats) {
+          var html = '';
+          html += '<div class="stat-card total"><div class="stat-icon"><i class="fas fa-clipboard-list"></i></div><div class="stat-num">' + stats.total + '</div><div class="stat-label">Total</div></div>';
+          html += '<div class="stat-card pending"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-num">' + stats.pending + '</div><div class="stat-label">Menunggu</div></div>';
+          html += '<div class="stat-card approved"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-num">' + stats.approved + '</div><div class="stat-label">Approved</div></div>';
+          html += '<div class="stat-card rejected"><div class="stat-icon"><i class="fas fa-times-circle"></i></div><div class="stat-num">' + stats.rejected + '</div><div class="stat-label">Ditolak</div></div>';
+          document.getElementById('statsBar').innerHTML = html;
+        })
+        .getDashboardStats();
+    }
+
+    // ========== LOAD REPORTS ==========
+    function loadReports() {
+      var filter = {
+        section: document.getElementById('filterSection').value,
+        tanggal: document.getElementById('filterTanggal').value,
+        status: document.getElementById('filterStatus').value
+      };
+
+      google.script.run
+        .withSuccessHandler(function(reports) {
+          allReports = reports;
+          renderReports(reports);
+        })
+        .getReports(filter);
+    }
+
+    function renderReports(reports) {
+      var container = document.getElementById('reportsTable');
+      if (!reports || reports.length === 0) {
+        container.innerHTML = '<div class="empty"><i class="fas fa-inbox"></i><p>Tidak ada laporan ditemukan</p></div>';
+        return;
+      }
+
+      var html = '<table class="report-table">';
+      html += '<tr><th>ID</th><th>Tanggal</th><th>Section</th><th>Pelapor</th><th>Progress</th><th>Status</th><th>Aksi</th></tr>';
+
+      for (var i = reports.length - 1; i >= 0; i--) {
+        var r = reports[i];
+        var avgProgress = 0;
+        if (r.kegiatan && r.kegiatan.length > 0) {
+          var sum = 0;
+          for (var k = 0; k < r.kegiatan.length; k++) sum += parseFloat(r.kegiatan[k].progress) || 0;
+          avgProgress = Math.round(sum / r.kegiatan.length);
+        }
+
+        var badgeClass = r.status === 'Approved' ? 'badge-approved' : r.status === 'Ditolak' ? 'badge-rejected' : 'badge-pending';
+        var pctClass = avgProgress >= 80 ? 'done' : avgProgress >= 50 ? 'high' : avgProgress >= 25 ? 'mid' : 'low';
+
+        html += '<tr>';
+        html += '<td><strong>' + esc(r.report_id) + '</strong></td>';
+        html += '<td style="white-space:nowrap;">' + esc(r.tanggal) + '</td>';
+        html += '<td>' + esc(r.section) + '</td>';
+        html += '<td>' + esc(r.nama_pelapor || '-') + '</td>';
+        html += '<td><div class="progress-mini"><div class="progress-mini-bar"><div class="progress-mini-fill ' + pctClass + '" style="width:' + avgProgress + '%"></div></div><span class="progress-mini-text">' + avgProgress + '%</span></div></td>';
+        html += '<td><span class="badge ' + badgeClass + '">' + esc(r.status) + '</span></td>';
+        html += '<td>';
+        html += '<button class="btn-sm btn-view" onclick="viewReport(\'' + esc(r.report_id) + '\')"><i class="fas fa-eye"></i></button> ';
+        if (r.status === 'Menunggu Approval') {
+          html += '<button class="btn-sm btn-approve" onclick="approveReport(\'' + esc(r.report_id) + '\')"><i class="fas fa-check"></i></button> ';
+          html += '<button class="btn-sm btn-reject" onclick="showReject(\'' + esc(r.report_id) + '\')"><i class="fas fa-times"></i></button>';
+        }
+        html += '</td></tr>';
+      }
+
+      html += '</table>';
+      container.innerHTML = html;
+    }
+
+    // ========== VIEW REPORT DETAIL ==========
+    function viewReport(reportId) {
+      var report = null;
+      for (var i = 0; i < allReports.length; i++) {
+        if (allReports[i].report_id === reportId) { report = allReports[i]; break; }
+      }
+      if (!report) return;
+
+      document.getElementById('modalTitle').textContent = 'Detail Laporan ' + report.report_id;
+
+      var body = '';
+      body += '<div class="detail-grid">';
+      body += '<div class="detail-item"><div class="label">Section</div><div class="value">' + esc(report.section) + '</div></div>';
+      body += '<div class="detail-item"><div class="label">Tanggal</div><div class="value">' + esc(report.tanggal) + '</div></div>';
+      body += '<div class="detail-item"><div class="label">Pelapor</div><div class="value">' + esc(report.nama_pelapor || '-') + '</div></div>';
+      body += '<div class="detail-item"><div class="label">Cuaca</div><div class="value">' + esc(report.cuaca || '-') + '</div></div>';
+      body += '<div class="detail-item"><div class="label">Tenaga Kerja</div><div class="value">' + (report.tenaga_kerja || 0) + ' orang</div></div>';
+      body += '<div class="detail-item"><div class="label">Alat Berat</div><div class="value">' + esc(report.alat_berat || '-') + '</div></div>';
+      if (report.kendala) {
+        var kendalaLines = report.kendala.split('\n');
+        var kendalaList = '';
+        for (var kc = 0; kc < kendalaLines.length; kc++) {
+          if (kendalaLines[kc].trim()) kendalaList += (kc + 1) + '. ' + esc(kendalaLines[kc].replace(/^\d+\.\s*/, '')) + '<br>';
+        }
+        body += '<div class="detail-item" style="grid-column:1/-1;"><div class="label">Kendala / Hambatan</div><div class="value" style="color:#e74c3c;">' + kendalaList + '</div></div>';
+      }
+      body += '<div class="detail-item"><div class="label">Status</div><div class="value"><span class="badge ' + (report.status === 'Approved' ? 'badge-approved' : report.status === 'Ditolak' ? 'badge-rejected' : 'badge-pending') + '">' + esc(report.status) + '</span></div></div>';
+      if (report.approver) body += '<div class="detail-item"><div class="label">Approver</div><div class="value">' + esc(report.approver) + '</div></div>';
+      if (report.catatan) body += '<div class="detail-item" style="grid-column:1/-1;"><div class="label">Catatan Admin</div><div class="value" style="color:#e74c3c;">' + esc(report.catatan) + '</div></div>';
+      body += '</div>';
+
+      if (report.kegiatan && report.kegiatan.length > 0) {
+        body += '<h4 style="font-size:13px;color:#1B4F72;margin-bottom:10px;"><i class="fas fa-tasks"></i> Progress Pekerjaan</h4>';
+        body += '<table class="workitem-table"><tr><th>No</th><th>Kegiatan</th><th>Progress</th><th>Keterangan</th></tr>';
+        for (var k = 0; k < report.kegiatan.length; k++) {
+          var wi = report.kegiatan[k];
+          var pct = parseFloat(wi.progress) || 0;
+          var barClass = pct >= 80 ? 'done' : pct >= 50 ? 'high' : pct >= 25 ? 'mid' : 'low';
+          body += '<tr>';
+          body += '<td>' + wi.no + '</td>';
+          body += '<td>' + esc(wi.nama) + '</td>';
+          body += '<td><div class="progress-bar-wrap"><div class="progress-bar-bg"><div class="progress-bar-fg ' + barClass + '" style="width:' + pct + '%"></div></div><span class="progress-pct">' + pct + '%</span></div></td>';
+          body += '<td style="color:#7f8c8d;">' + esc(wi.keterangan || '-') + '</td>';
+          body += '</tr>';
+        }
+        body += '</table>';
+      }
+
+      if (report.link_folder) {
+        body += '<p style="margin-top:8px;"><a href="' + esc(report.link_folder) + '" target="_blank" style="color:#2980b9;font-size:13px;"><i class="fas fa-images"></i> Lihat Foto Dokumentasi</a></p>';
+      }
+
+      document.getElementById('modalBody').innerHTML = body;
+
+      var actions = '';
+      if (report.status === 'Menunggu Approval') {
+        actions += '<button class="btn-modal-approve" onclick="approveReport(\'' + esc(report.report_id) + '\'); closeModal();"><i class="fas fa-check"></i> Approve</button>';
+        actions += '<button class="btn-modal-reject" onclick="showReject(\'' + esc(report.report_id) + '\');"><i class="fas fa-times"></i> Tolak</button>';
+      } else {
+        actions += '<button class="btn-modal-approve" style="background:#95a5a6;" onclick="closeModal()">Tutup</button>';
+      }
+      document.getElementById('modalActions').innerHTML = actions;
+
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    function closeModal(e) {
+      if (e && e.target !== document.getElementById('modalOverlay')) return;
+      document.getElementById('modalOverlay').classList.remove('active');
+    }
+
+    // ========== APPROVE ==========
+    function approveReport(reportId) {
+      if (!confirm('Approve laporan ' + reportId + '? Email akan dikirim ke stakeholder.')) return;
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showAlert(result.message, result.status === 'ok' ? 'success' : 'error');
+          if (result.status === 'ok') { loadReports(); loadStats(); }
+        })
+        .withFailureHandler(function(err) { showAlert('Error: ' + err.message, 'error'); })
+        .approveReport(reportId, currentAdminEmail);
+    }
+
+    // ========== REJECT ==========
+    function showReject(reportId) {
+      var catatan = prompt('Alasan penolakan untuk laporan ' + reportId + ':');
+      if (catatan === null) return;
+      if (!catatan.trim()) catatan = 'Ditolak tanpa catatan';
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showAlert(result.message, result.status === 'ok' ? 'success' : 'error');
+          if (result.status === 'ok') { loadReports(); loadStats(); closeModal(); }
+        })
+        .withFailureHandler(function(err) { showAlert('Error: ' + err.message, 'error'); })
+        .rejectReport(reportId, catatan);
+    }
+
+    // ========== CLEAR FILTER ==========
+    function clearFilter() {
+      document.getElementById('filterSection').value = '';
+      document.getElementById('filterTanggal').value = '';
+      document.getElementById('filterStatus').value = '';
+      loadReports();
+    }
+
+    // ========== TABS ==========
+    function switchTab(name) {
+      document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+      event.currentTarget.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+
+    // ========== SECTIONS ==========
+    function loadSectionsList() {
+      if (!currentSettings) return;
+      var html = '';
+      for (var i = 0; i < currentSettings.sections.length; i++) {
+        html += '<div class="section-list-item">';
+        html += '<span><i class="fas fa-map-marker-alt" style="color:#E67E22;margin-right:6px;"></i> ' + esc(currentSettings.sections[i]) + '</span>';
+        html += '<button class="btn-danger" onclick="deleteSectionItem(\'' + esc(currentSettings.sections[i]) + '\')"><i class="fas fa-trash"></i> Hapus</button>';
+        html += '</div>';
+      }
+      if (currentSettings.sections.length === 0) html = '<div class="empty"><p>Belum ada section</p></div>';
+      document.getElementById('sectionsList').innerHTML = html;
+    }
+
+    function addNewSection() {
+      var name = document.getElementById('newSectionName').value.trim();
+      if (!name) return showAlert('Masukkan nama section', 'error');
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showAlert(result.message, result.status === 'ok' ? 'success' : 'error');
+          if (result.status === 'ok') {
+            document.getElementById('newSectionName').value = '';
+            reloadSettings();
+          }
+        })
+        .addSection(name);
+    }
+
+    function deleteSectionItem(name) {
+      if (!confirm('Hapus section "' + name + '"?')) return;
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showAlert(result.message, result.status === 'ok' ? 'success' : 'error');
+          if (result.status === 'ok') reloadSettings();
+        })
+        .deleteSection(name);
+    }
+
+    // ========== SETTINGS ==========
+    var adminEmails = [];
+    var stakeholderEmails = [];
+
+    function loadSettingsForm() {
+      if (!currentSettings) return;
+      document.getElementById('settHeaderTitle').value = currentSettings.header_title || '';
+      document.getElementById('settProjectName').value = currentSettings.project_name || '';
+      document.getElementById('settBannerUrl').value = currentSettings.header_banner_url || '';
+
+      adminEmails = currentSettings.admin_emails ? currentSettings.admin_emails.split(',').map(function(e){ return e.trim(); }).filter(function(e){ return e.length > 0; }) : [];
+      stakeholderEmails = currentSettings.stakeholder_emails ? currentSettings.stakeholder_emails.split(',').map(function(e){ return e.trim(); }).filter(function(e){ return e.length > 0; }) : [];
+      renderEmailChips('admin');
+      renderEmailChips('stakeholder');
+
+      var bannerUrl = currentSettings.header_banner_url || '';
+      var preview = document.getElementById('bannerPreview');
+      var removeBtn = document.getElementById('btnRemoveBanner');
+      if (bannerUrl) {
+        preview.innerHTML = '<div class="banner-preview"><img src="' + esc(bannerUrl) + '" onerror="this.parentElement.innerHTML=\'<div style=padding:20px;text-align:center;color:#e74c3c;>Gambar tidak bisa dimuat</div>\'"></div>';
+        removeBtn.style.display = 'inline-block';
+      } else {
+        preview.innerHTML = '';
+        removeBtn.style.display = 'none';
+      }
+    }
+
+    function renderEmailChips(type) {
+      var emails = type === 'admin' ? adminEmails : stakeholderEmails;
+      var container = document.getElementById(type + 'EmailChips');
+      if (emails.length === 0) {
+        container.innerHTML = '<div class="email-chips-empty">Belum ada email</div>';
+        return;
+      }
+      var html = '';
+      for (var i = 0; i < emails.length; i++) {
+        html += '<div class="email-chip"><i class="fas fa-envelope" style="font-size:10px;"></i> ' + esc(emails[i]) +
+          '<button class="chip-remove" onclick="removeEmail(\'' + type + '\',' + i + ')" title="Hapus">&times;</button></div>';
+      }
+      container.innerHTML = html;
+    }
+
+    function addEmail(type) {
+      var input = document.getElementById(type + 'EmailInput');
+      var email = input.value.trim().toLowerCase();
+      if (!email) return;
+      if (email.indexOf('@') === -1 || email.indexOf('.') === -1) return showAlert('Format email tidak valid', 'error');
+
+      var emails = type === 'admin' ? adminEmails : stakeholderEmails;
+      if (emails.indexOf(email) !== -1) return showAlert('Email sudah ada dalam daftar', 'error');
+
+      emails.push(email);
+      input.value = '';
+      renderEmailChips(type);
+    }
+
+    function removeEmail(type, index) {
+      var emails = type === 'admin' ? adminEmails : stakeholderEmails;
+      emails.splice(index, 1);
+      renderEmailChips(type);
+    }
+
+    // Handle Enter key on email inputs
+    document.addEventListener('DOMContentLoaded', function() {
+      var adminInput = document.getElementById('adminEmailInput');
+      var shInput = document.getElementById('stakeholderEmailInput');
+      if (adminInput) adminInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault(); addEmail('admin'); } });
+      if (shInput) shInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault(); addEmail('stakeholder'); } });
+    });
+
+    function previewBanner(input) {
+      var file = input.files[0];
+      if (!file) return;
+      document.getElementById('bannerFileName').textContent = file.name;
+    }
+
+    function uploadBanner() {
+      var urlInput = document.getElementById('settBannerUrl');
+      var fileInput = document.getElementById('bannerFileInput');
+
+      // If URL is provided, save directly
+      if (urlInput.value.trim()) {
+        saveBannerUrl(urlInput.value.trim());
+        return;
+      }
+
+      // If file is selected, upload to Drive
+      var file = fileInput.files[0];
+      if (!file) return showAlert('Pilih gambar atau paste URL', 'error');
+      if (file.size > 5 * 1024 * 1024) return showAlert('Ukuran maksimal 5MB', 'error');
+
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var base64 = e.target.result.split(',')[1];
+        showAlert('Uploading...', 'info');
+
+        google.script.run
+          .withSuccessHandler(function(result) {
+            if (result.status === 'ok') {
+              saveBannerUrl(result.url);
+            } else {
+              showAlert(result.message, 'error');
+            }
+          })
+          .withFailureHandler(function(err) { showAlert('Error: ' + err.message, 'error'); })
+          .uploadBannerImage(base64, file.name, file.type);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function saveBannerUrl(url) {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showAlert('Banner berhasil disimpan', 'success');
+          currentSettings.header_banner_url = url;
+          loadSettingsForm();
+        })
+        .updateSettings({header_banner_url: url, header_title: document.getElementById('settHeaderTitle').value.trim(), project_name: document.getElementById('settProjectName').value.trim(), admin_emails: adminEmails.join(', '), stakeholder_emails: stakeholderEmails.join(', ')});
+    }
+
+    function removeBanner() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showAlert('Banner dihapus', 'success');
+          currentSettings.header_banner_url = '';
+          document.getElementById('settBannerUrl').value = '';
+          document.getElementById('bannerPreview').innerHTML = '';
+          document.getElementById('btnRemoveBanner').style.display = 'none';
+          document.getElementById('bannerFileInput').value = '';
+          document.getElementById('bannerFileName').textContent = '';
+        })
+        .updateSettings({header_banner_url: '', header_title: document.getElementById('settHeaderTitle').value.trim(), project_name: document.getElementById('settProjectName').value.trim(), admin_emails: adminEmails.join(', '), stakeholder_emails: stakeholderEmails.join(', ')});
+    }
+
+    function saveSettings() {
+      var data = {
+        header_title: document.getElementById('settHeaderTitle').value.trim(),
+        project_name: document.getElementById('settProjectName').value.trim(),
+        admin_emails: adminEmails.join(', '),
+        stakeholder_emails: stakeholderEmails.join(', '),
+        header_banner_url: currentSettings.header_banner_url || document.getElementById('settBannerUrl').value.trim()
+      };
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showAlert(result.message, result.status === 'ok' ? 'success' : 'error');
+          if (result.status === 'ok') {
+            currentSettings.header_title = data.header_title;
+            currentSettings.project_name = data.project_name;
+            currentSettings.admin_emails = data.admin_emails;
+            currentSettings.stakeholder_emails = data.stakeholder_emails;
+            currentSettings.header_banner_url = data.header_banner_url;
+            document.getElementById('projectNameDisplay').textContent = data.project_name;
+          }
+        })
+        .updateSettings(data);
+    }
+
+    function reloadSettings() {
+      google.script.run.withSuccessHandler(function(settings) {
+        currentSettings = settings;
+        loadSectionsList();
+        loadSettingsForm();
+
+        var filterSel = document.getElementById('filterSection');
+        filterSel.innerHTML = '<option value="">Semua Section</option>';
+        for (var i = 0; i < settings.sections.length; i++) {
+          filterSel.innerHTML += '<option value="' + esc(settings.sections[i]) + '">' + esc(settings.sections[i]) + '</option>';
+        }
+      }).getSettings();
+    }
+
+    // ========== DEBUG ==========
+    function runMigration() {
+      if (!confirm('Fix sheet: tambahkan kolom "Kendala" yang hilang? Data existing akan bergeser otomatis.')) return;
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showAlert(result.message, result.status === 'ok' ? 'success' : 'error');
+          if (result.status === 'ok') {
+            loadDebugInfo();
+            loadReports();
+            loadStats();
+          }
+        })
+        .withFailureHandler(function(err) { showAlert('Error: ' + err.message, 'error'); })
+        .migrateReportsSheet();
+    }
+
+    function loadDebugInfo() {
+      document.getElementById('debugOutput').style.display = 'none';
+
+      google.script.run
+        .withSuccessHandler(function(info) {
+          document.getElementById('debugOutput').style.display = 'block';
+
+          // Sheets info
+          var sheetsHtml = '<h4 style="font-size:13px;color:#1B4F72;margin-bottom:8px;"><i class="fas fa-table"></i> Sheets</h4>';
+          sheetsHtml += '<table style="width:100%;font-size:12px;border-collapse:collapse;">';
+          sheetsHtml += '<tr style="background:#ecf0f1;"><th style="padding:6px 8px;text-align:left;">Sheet Name</th><th style="padding:6px 8px;text-align:left;">Rows</th><th style="padding:6px 8px;text-align:left;">Cols</th></tr>';
+          for (var name in info.sheets) {
+            sheetsHtml += '<tr><td style="padding:6px 8px;border-bottom:1px solid #ecf0f1;">' + esc(name) + '</td><td style="padding:6px 8px;border-bottom:1px solid #ecf0f1;">' + info.sheets[name].rows + '</td><td style="padding:6px 8px;border-bottom:1px solid #ecf0f1;">' + info.sheets[name].cols + '</td></tr>';
+          }
+          sheetsHtml += '</table>';
+
+          if (info.errors.length > 0) {
+            sheetsHtml += '<div style="background:#fadbd8;padding:10px;border-radius:6px;margin-top:10px;font-size:12px;color:#922b21;">';
+            for (var e = 0; e < info.errors.length; e++) sheetsHtml += '<i class="fas fa-exclamation-triangle"></i> ' + esc(info.errors[e]) + '<br>';
+            sheetsHtml += '</div>';
+          }
+          document.getElementById('debugSheets').innerHTML = sheetsHtml;
+
+          // Settings raw
+          var settingsHtml = '<h4 style="font-size:13px;color:#1B4F72;margin-bottom:8px;"><i class="fas fa-cog"></i> Settings (Raw Data)</h4>';
+          if (info.settings_raw.length > 0) {
+            settingsHtml += '<table style="width:100%;font-size:11px;border-collapse:collapse;background:white;">';
+            for (var s = 0; s < info.settings_raw.length; s++) {
+              settingsHtml += '<tr><td style="padding:4px 8px;border-bottom:1px solid #ecf0f1;font-weight:' + (s === 0 ? '700' : '400') + ';background:' + (s === 0 ? '#ecf0f1' : 'white') + ';">' + esc(String(info.settings_raw[s][0])) + '</td><td style="padding:4px 8px;border-bottom:1px solid #ecf0f1;background:' + (s === 0 ? '#ecf0f1' : 'white') + ';">' + esc(String(info.settings_raw[s][1])) + '</td></tr>';
+            }
+            settingsHtml += '</table>';
+          } else {
+            settingsHtml += '<p style="color:#e74c3c;font-size:12px;">Tidak ada data</p>';
+          }
+          document.getElementById('debugSettings').innerHTML = settingsHtml;
+
+          // Reports raw
+          var reportsHtml = '<h4 style="font-size:13px;color:#1B4F72;margin-bottom:8px;"><i class="fas fa-clipboard-list"></i> Reports (Raw Data) — ' + (info.reports_raw.length > 0 ? (info.reports_raw.length - 1) + ' laporan' : '0 laporan') + '</h4>';
+          if (info.reports_raw.length > 0) {
+            reportsHtml += '<div style="overflow-x:auto;"><table style="width:100%;font-size:11px;border-collapse:collapse;background:white;min-width:600px;">';
+            for (var r = 0; r < info.reports_raw.length; r++) {
+              reportsHtml += '<tr>';
+              for (var c = 0; c < info.reports_raw[r].length; c++) {
+                var cellStyle = 'padding:4px 6px;border-bottom:1px solid #ecf0f1;white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis;';
+                if (r === 0) cellStyle += 'background:#ecf0f1;font-weight:700;';
+                reportsHtml += '<td style="' + cellStyle + '">' + esc(String(info.reports_raw[r][c]).substring(0, 30)) + '</td>';
+              }
+              reportsHtml += '</tr>';
+            }
+            reportsHtml += '</table></div>';
+          } else {
+            reportsHtml += '<p style="color:#7f8c8d;font-size:12px;">Belum ada laporan</p>';
+          }
+          document.getElementById('debugReports').innerHTML = reportsHtml;
+
+          // WorkItems raw
+          var wiHtml = '<h4 style="font-size:13px;color:#1B4F72;margin-bottom:8px;"><i class="fas fa-tasks"></i> WorkItems (Raw Data) — ' + (info.workitems_raw.length > 0 ? (info.workitems_raw.length - 1) + ' item' : '0 item') + '</h4>';
+          if (info.workitems_raw.length > 0) {
+            wiHtml += '<table style="width:100%;font-size:11px;border-collapse:collapse;background:white;">';
+            for (var w = 0; w < info.workitems_raw.length; w++) {
+              wiHtml += '<tr>';
+              for (var wc = 0; wc < info.workitems_raw[w].length; wc++) {
+                var wiStyle = 'padding:4px 6px;border-bottom:1px solid #ecf0f1;';
+                if (w === 0) wiStyle += 'background:#ecf0f1;font-weight:700;';
+                wiHtml += '<td style="' + wiStyle + '">' + esc(String(info.workitems_raw[w][wc]).substring(0, 30)) + '</td>';
+              }
+              wiHtml += '</tr>';
+            }
+            wiHtml += '</table>';
+          } else {
+            wiHtml += '<p style="color:#7f8c8d;font-size:12px;">Belum ada work items</p>';
+          }
+          document.getElementById('debugWorkItems').innerHTML = wiHtml;
+        })
+        .withFailureHandler(function(err) {
+          showAlert('Debug error: ' + err.message, 'error');
+        })
+        .getDebugInfo();
+    }
+
+    // ========== HELPERS ==========
+    function esc(text) {
+      var div = document.createElement('div');
+      div.textContent = text || '';
+      return div.innerHTML;
+    }
+
+    function showAlert(msg, type) {
+      var div = document.getElementById('alertDiv');
+      div.innerHTML = '<div class="alert alert-' + type + '"><i class="fas fa-' + (type === 'success' ? 'check-circle' : 'exclamation-circle') + '"></i> ' + msg + '</div>';
+      div.scrollIntoView({behavior: 'smooth'});
+      setTimeout(function() { div.innerHTML = ''; }, 6000);
+    }
+
+    // Enter key to login
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && document.getElementById('loginCard').style.display !== 'none') {
+        login();
+      }
+    });
+  </script>
+</body>
+</html>
